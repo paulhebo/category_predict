@@ -1,0 +1,7 @@
+torchvision
+transformers==4.6.0
+pandas
+numpy
+smdebug
+pytorch-lightning==1.2.1
+scikit-learn

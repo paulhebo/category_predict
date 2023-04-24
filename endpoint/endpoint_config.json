@@ -1,0 +1,12 @@
+{
+    "body":
+    {
+        "model_algorithm": "product-category",
+        "model_name": "product-category-model",
+        "model_environment": "{}",
+        "model_data_url": "",
+        "endpoint_name": "product-category-endpoint",
+        "instance_type": "ml.g4dn.2xlarge",
+        "initial_instance_count": 1
+    }
+}

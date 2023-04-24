@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template for SSM Parameter Store
+
+Parameters:    
+  S3Bucket:
+    Description: S3 Bucket of assets
+    Type: String
+
+  S3Key:
+    Description: S3 Bucket of assets
+    Type: String
+
+  SageMakerRole:
+    Type: String
+    Description: SageMaker Role Arn
+
+  # CreatePipelineHelperLambdaArn:
+  #   Type: String
+  #   Description: CreatePipelineHelper Lambda Arn
+
+  ChinaRegion: 
+    Description: Check if the stack to be in CN Region
+    Type: String
+    Default: false
+    AllowedValues: [ true, false ]
+
+  ApiGatewayProdEndpoint:
+    Type: String
+    Description: API Gateway Endpoint
+
+Conditions:
+  Globally: !Equals [ false, !Ref ChinaRegion ]
+
+Resources:
+  
+  Parameter5:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /industry_ai/config/meta/sagemaker_role_arn
+      Type: String
+      Value: !Ref SageMakerRole
+
+  Parameter22:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /industry_ai/config/meta/algorithms/product-category/source
+      Type: String
+      Value: !Sub s3://${S3Bucket}/${S3Key}algorithms/product-category/source/sourcedir.tar.gz
+
+  Parameter23:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /industry_ai/config/meta/algorithms/product-category/artifact
+      Type: String
+      Value: !Sub s3://${S3Bucket}/${S3Key}algorithms/product-category/artifact/model.tar.gz
+
+  Parameter54:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /industry_ai/config/meta/api_endpoint
+      Type: String
+      Value: !Ref ApiGatewayProdEndpoint
+
+ 

@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: (industry-ai) - The AWS CloudFormation template for deployment of the industry-ai. Version v1.0.0 (Global)
+
+Parameters:
+  S3Bucket:
+    Description: S3 Bucket of assets
+    Type: String
+
+  S3Key:
+    Description: S3 Key of assets
+    Type: String
+
+  CustomIdentifier:
+    Description: AWS Resource CustomIdentifier
+    Type: String
+    Default: industry-ai
+
+  ChinaRegion: 
+    Description: Check if the stack to be in CN Region
+    Type: String
+    Default: false
+    AllowedValues: [ True, False ]
+
+Conditions:
+  Globally: !Equals [ False, !Ref ChinaRegion ]
+
+Resources:
+
+  IAM:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ChinaRegion: !Ref ChinaRegion
+      TemplateURL: 
+        !If
+        - Globally
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com/${S3Key}templates/industry-ai-iam.yaml
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com.cn/${S3Key}templates/industry-ai-iam.yaml
+
+  LAMBDA:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
+        ChinaRegion: !Ref ChinaRegion
+      TemplateURL:
+        !If
+        - Globally
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com/${S3Key}templates/industry-ai-lambda.yaml
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com.cn/${S3Key}templates/industry-ai-lambda.yaml
+
+  SSM:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: 
+      - IAM
+      - LAMBDA
+    Properties:
+      Parameters:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
+        SageMakerRole: !GetAtt IAM.Outputs.SageMakerRole
+        #CreatePipelineHelperLambdaArn: !GetAtt LAMBDA.Outputs.CreatePipelineHelperFunctionArn
+        ChinaRegion: !Ref ChinaRegion
+        #AddPermissionFunctionArn: !GetAtt LAMBDA.Outputs.AllInOneAIAddPermissionFunctionArn
+        #RemovePermissionFunctionArn: !GetAtt LAMBDA.Outputs.AllInOneAIRemovePermissionFunctionArn
+        #CreateS3EventNotificationFunctionArn: !GetAtt LAMBDA.Outputs.AllInOneAICreateS3EventNotificationFunctionArn
+        #DeleteS3EventNotificationFunctionArn: !GetAtt LAMBDA.Outputs.AllInOneAIDeleteS3EventNotificationFunctionArn
+        #ImportOpensearchAsyncHelperFunctionArn: !GetAtt LAMBDA.Outputs.AllInOneAIImportOpensearchAsyncHelperFunctionArn
+        ApiGatewayProdEndpoint: !GetAtt LAMBDA.Outputs.ApiGatewayProdEndpoint
+      TemplateURL:
+        !If
+        - Globally
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com/${S3Key}templates/industry-ai-ssm.yaml
+        - !Sub https://${S3Bucket}.s3.${AWS::Region}.amazonaws.com.cn/${S3Key}templates/industry-ai-ssm.yaml
