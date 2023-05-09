@@ -22,6 +22,8 @@ git push -uf origin main
 
 ## Depolyment guild
 
+0、安装git-lfs, git lfs clone https://github.com/paulhebo/category_predict.git下载项目代码
+
 1、新建S3 BUCKET
 
 2、下载项目代码后，进deployment文件夹，运行基础代码部署脚本
